@@ -25,6 +25,13 @@ function initVariableRegisters()
     return v;
 }
 
+
+class Screen
+{
+
+
+}
+
 class Emulator
 {
     constructor(rom)
@@ -33,6 +40,7 @@ class Emulator
         this.programCounter = new Ch8Word(0x200);
         this.index = new Ch8Word(0);
         this.vRegisters = initVariableRegisters();
+        this.screen = new Screen();
     }
 
     runCPUloop()
@@ -42,6 +50,7 @@ class Emulator
         console.log(this.vRegisters.B);
         const [h,l] = this.programCounter.toBytes();
         console.log(h);
+        console.log("nibble method",this.programCounter.getNibble(3));
     }
 }
 

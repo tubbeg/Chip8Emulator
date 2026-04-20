@@ -24,6 +24,31 @@ class Ch8Word
         const low = new Ch8Byte(this._nr & 0xFF);
         return [high,low];
     }
+
+    getNibble(nth)
+    {
+        // 0xABCD first nibble is least significant
+        // so getNibble(4) results in A
+        if (nth < 5 && nth > 0)
+        {
+            const shiftBy = (nth - 1) * 4 //4 bits in a nibble
+            const res = this._nr >> shiftBy;
+            return res & 0xF;
+        }
+        throw new Error("invalid parameter", nth);
+    }
+
+    getHighByte()
+    {
+        const l = 0xFF00 & this._nr;
+        return new Ch8Byte(l >> 8);
+    }
+
+    getLowByte()
+    {
+        const l = 0xFF & this._nr;
+        return new Ch8Byte(l);
+    }
 }
 
 
