@@ -41,6 +41,18 @@ class Emulator
         this.index = new Ch8Word(0);
         this.vRegisters = initVariableRegisters();
         this.screen = new Screen();
+        self.keepRunning = true;
+    }
+
+    execute(instruction)
+    {
+        throw new Error("NOT YET IMPLEMENTED!")
+    }
+
+
+    decode(opcode)
+    {
+        throw new Error("NOT YET IMPLEMENTED!")
     }
 
     runCPUloop()
@@ -51,6 +63,12 @@ class Emulator
         const [h,l] = this.programCounter.toBytes();
         console.log(h);
         console.log("nibble method",this.programCounter.getNibble(3));
+        while(this.keepRunning)
+        {
+            const opcode = this.memory.readOpcode(self.programCounter); // read opcode
+            const instruction = this.decode(opcode);                    // decode
+            this.execute(instruction);                                  // execute
+        }
     }
 }
 

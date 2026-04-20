@@ -27,6 +27,11 @@ class Memory
         this._memory = typedArrayToMemory(rom);
         console.log("memory test", this._memory);
     }
+
+    readOpcode(pc)
+    {
+        throw new Error("NOT YET IMPLEMENTED!");
+    }
 }
 
 
