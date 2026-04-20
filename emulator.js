@@ -1,9 +1,28 @@
-class Memory
+import {Memory} from "./memory.js";
+import { Ch8Byte } from "./bytes.js";
+import { Ch8Word } from "./words.js";
+
+function initVariableRegisters()
 {
-    constructor(rom)
+    const v = 
     {
-        this._memory = rom;
-    }
+        "1" : new Ch8Byte(0),
+        "2" : new Ch8Byte(0),
+        "3" : new Ch8Byte(0),
+        "4" : new Ch8Byte(0),
+        "5" : new Ch8Byte(0),
+        "6" : new Ch8Byte(0),
+        "7" : new Ch8Byte(0),
+        "8" : new Ch8Byte(0),
+        "9" : new Ch8Byte(0),
+        "A" : new Ch8Byte(0),
+        "B" : new Ch8Byte(0),
+        "C" : new Ch8Byte(0),
+        "D" : new Ch8Byte(0),
+        "E" : new Ch8Byte(0),
+        "F" : new Ch8Byte(0)
+    };
+    return v;
 }
 
 class Emulator
@@ -11,29 +30,19 @@ class Emulator
     constructor(rom)
     {
         this.memory = new Memory(rom);
+        this.programCounter = new Ch8Word(0x200);
+        this.index = new Ch8Word(0);
+        this.vRegisters = initVariableRegisters();
     }
 
     runCPUloop()
     {
         console.log("Doing calculation-things here...");
         console.log("the length of memory is: ", this.memory._memory.length);
+        console.log(this.vRegisters.B);
+        const [h,l] = this.programCounter.toBytes();
+        console.log(h);
     }
 }
 
-function runEmulator(rom)
-{
-    const e = new Emulator(rom);
-    e.runCPUloop();
-}
-
-const inputElement = document.getElementById("ROM");
-inputElement.addEventListener("change", processFiles);
-
-async function processFiles()
-{
-    const arr = await new Response(this.files[0]).arrayBuffer();
-    runEmulator(new Uint8Array(arr));
-    console.log("see ya");
-}
-
-
+export {Emulator};
