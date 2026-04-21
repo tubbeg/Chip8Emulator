@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
     <title>My Emulator</title>
 </head>
 <body>
-    <h1>Emulation!</h1>
-    <label for="ROM">Upload a ROM:</label>
-    <input type="file" id="ROM" name="ROM" accept=".ch8" />
+    <h1 class="box">Emulation!</h1>
+    <div class="box">
+        <label class="label" for="ROM">Upload a ROM (.ch8 file):</label>
+        <input class="button" type="file" id="ROM" name="ROM" accept=".ch8" />
+    </div>
+    <div class="box container" id="screen"></div>
     <script src="main.js" type="module" ></script>
 </body>
 </html>

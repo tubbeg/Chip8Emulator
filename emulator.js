@@ -1,6 +1,7 @@
 import {Memory} from "./memory.js";
 import { Ch8Byte } from "./bytes.js";
 import { Ch8Word } from "./words.js";
+import { Screen } from "./screen.js";
 
 function initVariableRegisters()
 {
@@ -23,13 +24,6 @@ function initVariableRegisters()
         "F" : new Ch8Byte(0)
     };
     return v;
-}
-
-
-class Screen
-{
-
-
 }
 
 class Emulator
@@ -63,6 +57,7 @@ class Emulator
         const [h,l] = this.programCounter.toBytes();
         console.log(h);
         console.log("nibble method",this.programCounter.getNibble(3));
+        this.screen.updatePixel(-1,1, "helooooooo")
         while(this.keepRunning)
         {
             const opcode = this.memory.readOpcode(self.programCounter); // read opcode
