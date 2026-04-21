@@ -15,3 +15,15 @@ async function processFiles()
 
 const inputElement = document.getElementById("ROM");
 inputElement.addEventListener("change", processFiles);
+
+class MyStuff
+{
+    constructor()
+    {
+        this.a = 100;
+    }
+}
+
+const t = new MyStuff();
+
+console.log("TPYE HERE", Object.prototype.toString.call(t));

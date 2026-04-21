@@ -1,5 +1,5 @@
 import { Ch8Byte } from "./bytes.js";
-
+import { createWord } from "./words.js";
 
 function typedArrayToMemory(arr)
 {
@@ -30,7 +30,16 @@ class Memory
 
     readOpcode(pc)
     {
-        throw new Error("NOT YET IMPLEMENTED!");
+        const pcNr = pc.toNumber();
+        const high = this._memory[pcNr];
+        const low = this._memory[pcNr + 1];
+        console.log(high,low);
+        if (high == null || low == null)
+        {
+            console.log(pcNr, high, low);
+            throw new Error();
+        }
+        return createWord(high,low);
     }
 }
 

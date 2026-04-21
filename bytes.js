@@ -16,6 +16,11 @@ class Ch8Byte
             throw new Error("invalid number");
         this._nr = nr;
     }
+
+    toNumber()
+    {
+        return this._nr;
+    }
 }
 
 

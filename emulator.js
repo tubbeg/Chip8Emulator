@@ -26,6 +26,29 @@ function initVariableRegisters()
     return v;
 }
 
+const Instructions = Object.freeze
+(
+    {
+        JMP : "JMP",
+        DRAW : "DRAW",
+        SETINDEX : "SETINDEX",
+        ADD : "ADD",
+        SET : "SET",
+        CLEAR : "CLEAR"
+    }
+);
+
+
+function firstNibbleIsOne(word)
+{
+    return word.getFirstNibble() == 0x1;
+}
+
+function addRegister(instruction, varRegisters)
+{
+    throw new Error("NOT YET IMPLEMENTED!");
+}
+
 class Emulator
 {
     constructor(rom)
@@ -35,18 +58,36 @@ class Emulator
         this.index = new Ch8Word(0);
         this.vRegisters = initVariableRegisters();
         this.screen = new Screen();
-        self.keepRunning = true;
+        this.keepRunning = true;
     }
 
     execute(instruction)
     {
-        throw new Error("NOT YET IMPLEMENTED!")
+        switch(instruction)
+        {
+            case Instructions.ADD:
+                this.vRegisters = addRegister(instruction, this.vRegisters);
+                break;
+            default:
+                throw new Error("NOT YET IMPLEMENTED!");
+                break;
+        }
     }
-
 
     decode(opcode)
     {
-        throw new Error("NOT YET IMPLEMENTED!")
+        if (firstNibbleIsOne(opcode))
+            return Instructions.JMP;
+        return null;
+    }
+
+    incrementPC()
+    {
+        //2 bytes per instruction means that
+        //we have to increment twice 
+        this.programCounter.addNumber(2);
+        if (this.programCounter.toNumber() > 0xFFF) // out of memory
+            this.programCounter = new Ch8Word(0);
     }
 
     runCPUloop()
@@ -57,11 +98,13 @@ class Emulator
         const [h,l] = this.programCounter.toBytes();
         console.log(h);
         console.log("nibble method",this.programCounter.getNibble(3));
-        this.screen.updatePixel(-1,1, "helooooooo")
+        //this.screen.updatePixel(-1,1, "helooooooo")
         while(this.keepRunning)
         {
-            const opcode = this.memory.readOpcode(self.programCounter); // read opcode
+            console.log("here");
+            const opcode = this.memory.readOpcode(this.programCounter); // read opcode
             const instruction = this.decode(opcode);                    // decode
+            this.incrementPC();                                         // increment program counter
             this.execute(instruction);                                  // execute
         }
     }

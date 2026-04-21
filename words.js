@@ -9,6 +9,22 @@ function validWord(nr)
     return true;
 }
 
+function isByte(nr)
+{
+    console.log(nr);
+    return nr.constructor.name == "Ch8Byte";
+}
+
+function createWord(high, low)
+{
+    if (isByte(high) && isByte(low))
+    {
+        const nr = (high << 8) & low;
+        return new Ch8Word(nr);
+    }
+    throw new Error("INVALID ARGUMENTS!", high, low);
+}
+
 class Ch8Word
 {
     constructor(nr)
@@ -18,11 +34,36 @@ class Ch8Word
         this._nr = nr;
     }
 
+    toNumber()
+    {
+        return this._nr;
+    }
+
     toBytes()
     {
         const high = new Ch8Byte(this._nr >> 8);
         const low = new Ch8Byte(this._nr & 0xFF);
         return [high,low];
+    }
+
+    getFourthNibble()
+    {
+        return this.getNibble(4);
+    }
+
+    getThirdNibble()
+    {
+        return this.getNibble(3);
+    }
+
+    getSecondNibble()
+    {
+        return this.getNibble(2);
+    }
+
+    getFirstNibble()
+    {
+        return this.getNibble(1);
     }
 
     getNibble(nth)
@@ -49,7 +90,14 @@ class Ch8Word
         const l = 0xFF & this._nr;
         return new Ch8Byte(l);
     }
+
+    addNumber(nr)
+    {
+        this._nr = this._nr + nr;
+        if (!validWord(this._nr))
+            this._nr = this.nr % 0xFFFF;
+    }
 }
 
 
-export {Ch8Word};
+export {Ch8Word, createWord};
