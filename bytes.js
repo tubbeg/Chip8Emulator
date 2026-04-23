@@ -21,6 +21,13 @@ class Ch8Byte
     {
         return this._nr;
     }
+
+    addNumber(nr)
+    {
+        this._nr += nr;
+        if (!validByte(this._nr))
+            this._nr = this._nr % 0xFF;
+    }
 }
 
 

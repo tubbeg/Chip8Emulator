@@ -7,6 +7,7 @@ function initVariableRegisters()
 {
     const v = 
     {
+        "0" : new Ch8Byte(0),
         "1" : new Ch8Byte(0),
         "2" : new Ch8Byte(0),
         "3" : new Ch8Byte(0),
@@ -16,12 +17,12 @@ function initVariableRegisters()
         "7" : new Ch8Byte(0),
         "8" : new Ch8Byte(0),
         "9" : new Ch8Byte(0),
-        "A" : new Ch8Byte(0),
-        "B" : new Ch8Byte(0),
-        "C" : new Ch8Byte(0),
-        "D" : new Ch8Byte(0),
-        "E" : new Ch8Byte(0),
-        "F" : new Ch8Byte(0)
+        "a" : new Ch8Byte(0),
+        "b" : new Ch8Byte(0),
+        "c" : new Ch8Byte(0),
+        "d" : new Ch8Byte(0),
+        "e" : new Ch8Byte(0),
+        "f" : new Ch8Byte(0)
     };
     return v;
 }
@@ -54,7 +55,6 @@ function compareNibbles(character, number_nibble)
         default:
             if (Number(padding + character) == number_nibble)
             {
-                console.log("here");
                 return true;
             }
             return false;
@@ -64,18 +64,11 @@ function compareNibbles(character, number_nibble)
 function isEqualParameterIns(instruction, word)
 {
     const value = Instructions[instruction];
-    console.log("instruction key is", instruction);
-    console.log("value is", value);
     const nibbles = value.split("");
-    console.log(nibbles, "split");
     for (let j = 0; j < 4; j++)
     {
-        console.log("comparing nibbles", nibbles[j], word.getNibble(4-j));
         if (!compareNibbles(nibbles[j], word.getNibble(4-j)))
-        {
-            console.log(nibbles[j], "does ont match", word.getNibble(4-j));
             return false;
-        }
     }
     return true;
 }
@@ -115,10 +108,11 @@ function getVX(opcode)
     return opcode.getThirdNibble();
 }
 
-function addRegister(instruction, varRegisters)
+function getVY(opcode)
 {
-    throw new Error("NOT YET IMPLEMENTED!");
+    return opcode.getSecondNibble();
 }
+
 
 class Emulator
 {
@@ -132,10 +126,50 @@ class Emulator
         this.keepRunning = true;
     }
 
-    //st
-    setVarRegister()
+    setVarRegister(opcode)
     {
+        const vr = getVX(opcode);
+        const value = opcode.getNN();
+        const vrs = vr.toString(16);
+        const vreg = this.vRegisters[vrs];
+        if (!vreg)
+        {
+            console.error(vreg, vrs);
+            throw new Error("not existign register");
+        }
+        this.vRegisters[vrs] = new Ch8Byte(value);
+    }
 
+    addRegister(opcode)
+    {
+        const vr = getVX(opcode);
+        const value = opcode.getNN();
+        const vrs = vr.toString(16);
+        const vreg = this.vRegisters[vrs];
+        if (!vreg)
+        {
+            console.error(vreg, vrs);
+            throw new Error("not existign register");
+        }
+        vreg.addNumber(value);
+    }
+
+    draw(opcode)
+    {
+        const vX = getVX(opcode);
+        const vY = getVY(opcode);
+        const nrOfBytes = opcode.getFirstNibble();
+        const vXs = vX.toString(16);
+        const vYs = vY.toString(16);
+        const vRegX = this.vRegisters[vXs];
+        const vRegY = this.vRegisters[vYs];
+        const bytes = this.memory.readIndexBytes(this.index, nrOfBytes);
+        const [x,y] = [vRegX.toNumber(), vRegY.toNumber()];
+        bytes.forEach((b) =>
+        {
+            this.screen.xorPixel()
+        });
+        throw new Error("NOT YET IMPLEMENTED!");
     }
 
     execute(instruction, opcode)
@@ -146,19 +180,21 @@ class Emulator
                 this.screen.clearScreen();
                 break;
             case "ADD":
-                this.vRegisters = addRegister(instruction, this.vRegisters);
+                this.addRegister(opcode);
                 break;
             case "SETINDEX":
                 this.index = new Ch8Word(opcode.getNNN());
                 break;
             case "SET":
-                const vx = getVX(opcode);
-                throw new Error("NOT YET IMPLEMENTED!")
+                this.setVarRegister(opcode);
+                break;
+            case "DRAW":
+                this.draw(opcode);
+                break;
             default:
                 console.log(instruction, "instruction is");
                 console.log(Instructions.CLEAR.toString(), );
                 throw new Error("NOT YET IMPLEMENTED!");
-
                 break;
         }
     }
@@ -173,7 +209,6 @@ class Emulator
             return Instructions.ADD;
         if (isSet(opcode))
             return Instructions.ADD;*/
-        console.log("analysing opcode", opcode);
         return getInstruction(opcode);
     }
 
@@ -189,19 +224,13 @@ class Emulator
 
     runCPUloop()
     {
-        console.log("Doing calculation-things here...");
-        console.log("the length of memory is: ", this.memory._memory.length);
-        console.log(this.vRegisters.B);
         const [h,l] = this.programCounter.toBytes();
-        console.log(h);
-        console.log("nibble method",this.programCounter.getNibble(3));
-        //this.screen.updatePixel(-1,1, "helooooooo")
         while(this.keepRunning)
         {
             const opcode = this.memory.readOpcode(this.programCounter); // read opcode
             const instruction = this.decode(opcode);                    // decode
             this.incrementPC();                                         // increment program counter
-            this.execute(instruction, opcode);                                  // execute
+            this.execute(instruction, opcode);                          // execute
         }
     }
 }

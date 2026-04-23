@@ -11,7 +11,6 @@ function validWord(nr)
 
 function isByte(nr)
 {
-    console.log(nr);
     return nr.constructor.name == "Ch8Byte";
 }
 
@@ -111,6 +110,11 @@ class Ch8Word
     getNNN()
     {
         return this._nr & 0x0FFF;
+    }
+
+    getNN()
+    {
+        return this._nr & 0x00FF;
     }
 }
 

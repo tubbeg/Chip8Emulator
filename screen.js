@@ -74,6 +74,21 @@ class Screen
         }
     }
 
+    xorPixel(x,y)
+    {
+
+    }
+
+    drawByte(x,y,byte)
+    {
+
+    }
+
+    drawBytes(x,y,bytes)
+    {
+        
+    }
+
     _clear(pixelKey)
     {
         const pixel = this.pixelMap[pixelKey];

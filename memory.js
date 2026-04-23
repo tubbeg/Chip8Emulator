@@ -6,7 +6,7 @@ function typedArrayToMemory(arr)
     //typed arrays are really great but also slightly annoying
     const m = Array.from(arr);
     const init = [...Array(0x200).keys()].map(_ => {return new Ch8Byte(0)});
-    const l = m.map((data) => {console.log(data); return new Ch8Byte(data)});
+    const l = m.map((data) => {return new Ch8Byte(data)});
     const remLength = 0x1000 - (init.length + l.length)
     if (remLength > 0)
     {
@@ -23,7 +23,6 @@ function typedArrayToMemory(arr)
 function debugPrintHex(byte)
 {
     const hex = byte.toNumber().toString(16);
-    console.log("hex is: ",hex);
 }
 
 class Memory
@@ -31,7 +30,6 @@ class Memory
     constructor(rom)
     {
         this._memory = typedArrayToMemory(rom);
-        console.log("memory test", this._memory);
     }
 
     readOpcode(pc)
@@ -39,18 +37,27 @@ class Memory
         const pcNr = pc.toNumber();
         const high = this._memory[pcNr];
         const low = this._memory[pcNr + 1];
-        console.log(high,low);
         if (high == null || low == null)
         {
             console.log(pcNr, high, low);
             throw new Error();
         }
-        console.log("got bytes", high,low);
-        debugPrintHex(high);
-        debugPrintHex(low);
+        //debugPrintHex(high);
+        //debugPrintHex(low);
         const w = createWord(high,low);
-        console.log("word is", w.toNumber());
         return w;
+    }
+
+    readIndexBytes(index, nrOfBytes)
+    {
+        const bytes = [];
+        const indexNr = index.toNumber();
+        for (let i = indexNr; i < indexNr + nrOfBytes; i++)
+        {
+            let b = this._memory[i];
+            bytes.unshift(b);
+        }
+        return bytes;
     }
 }
 
