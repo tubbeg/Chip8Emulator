@@ -28,6 +28,13 @@ class Ch8Byte
         if (!validByte(this._nr))
             this._nr = this._nr % 0xFF;
     }
+
+    //bit zero is LSB
+    getBit(nth)
+    {
+        const maskBit = this._nr & (1 << nth)
+        return maskBit > 0;
+    }
 }
 
 

@@ -118,12 +118,20 @@ class Emulator
 {
     constructor(rom)
     {
-        this.memory = new Memory(rom);
         this.programCounter = new Ch8Word(0x200);
         this.index = new Ch8Word(0);
         this.vRegisters = initVariableRegisters();
         this.screen = new Screen();
+        this.keepRunning = false;
+        this.memory = null;
+        this.dbg = document.getElementById("debugElement");
+        this.dbg.innerText = "hello" + this.programCounter.toNumber().toString();
+    }
+
+    init(rom)
+    {
         this.keepRunning = true;
+        this.memory = new Memory(rom);
     }
 
     setVarRegister(opcode)
@@ -154,26 +162,33 @@ class Emulator
         vreg.addNumber(value);
     }
 
+    setCarryFlag()
+    {
+        this.vRegisters["f"] = new Ch8Byte(1);
+    }
+
+    resetCarryFlag()
+    {
+        this.vRegisters["f"] = new Ch8Byte(0);
+    }
+
+
     draw(opcode)
     {
-        const vX = getVX(opcode);
-        const vY = getVY(opcode);
-        const nrOfBytes = opcode.getFirstNibble();
-        const vXs = vX.toString(16);
-        const vYs = vY.toString(16);
+        const vXs = getVX(opcode).toString(16);
+        const vYs = getVY(opcode).toString(16);
         const vRegX = this.vRegisters[vXs];
         const vRegY = this.vRegisters[vYs];
+        const nrOfBytes = opcode.getFirstNibble();
         const bytes = this.memory.readIndexBytes(this.index, nrOfBytes);
         const [x,y] = [vRegX.toNumber(), vRegY.toNumber()];
-        bytes.forEach((b) =>
-        {
-            this.screen.xorPixel()
-        });
-        throw new Error("NOT YET IMPLEMENTED!");
+        if (this.screen.drawBytes(x,y,bytes))
+            this.resetCarryFlag();
     }
 
     execute(instruction, opcode)
     {
+        console.log("executing...", instruction);
         switch(instruction)
         {
             case "CLEAR":
@@ -190,6 +205,10 @@ class Emulator
                 break;
             case "DRAW":
                 this.draw(opcode);
+                break;
+            case "JMP":
+                const nnn = opcode.getNNN();
+                this.programCounter = new Ch8Word(nnn);
                 break;
             default:
                 console.log(instruction, "instruction is");
@@ -222,11 +241,13 @@ class Emulator
             this.programCounter = new Ch8Word(0);
     }
 
-    runCPUloop()
+    async runCPUloop()
     {
         const [h,l] = this.programCounter.toBytes();
         while(this.keepRunning)
         {
+            this.dbg.innerText = "hello" + this.programCounter.toNumber().toString();
+            await new Promise(r => setTimeout(r, 400));
             const opcode = this.memory.readOpcode(this.programCounter); // read opcode
             const instruction = this.decode(opcode);                    // decode
             this.incrementPC();                                         // increment program counter
