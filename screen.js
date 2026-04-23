@@ -5,12 +5,26 @@ function generateKey(coordinate)
     return "x" + coordinate.x + ";y" + coordinate.y;
 }
 
+function setElement(el)
+{
+    el.innerText = " ";
+    el.className = "button is-small  is-primary"
+}
+
+
+function resetElement(el)
+{
+    el.innerText = " ";
+    el.className = "button is-small has-background-dark"
+}
+
+
+
 function createPixel(coordinate)
 {
     const td = document.createElement("td");
     td.id = generateKey(coordinate);
-    td.innerText = "X";
-    td.className = "is-primary"
+    setElement(td);
     return td;
 }
 
@@ -53,12 +67,22 @@ function createScreen(screen)
     return tm;
 }
 
+function addData(pixelMap)
+{
+    const newMap = {};
+    Object.keys(pixelMap).forEach((k) =>
+    {
+        newMap[k] = {state:true, element:pixelMap[k]};
+    });
+    return newMap;
+}
+
 class Screen
 {
     constructor()
     {
         this.t = document.getElementById("screen");
-        this.pixelMap = createScreen(this.t);
+        this.pixelMap = addData(createScreen(this.t));
     }
 
     getPixel(x,y)
@@ -66,40 +90,33 @@ class Screen
         return this.pixelMap[generateKey({x:x,y:y})];
     }
 
-    updatePixel(x,y, text)
+    setPixel(x,y)
     {
-        try
-        {
-            const px = this.pixelMap[generateKey({x:x,y:y})];
-            px.innerText = text;
-        }
-        catch(error)
-        {
-            console.error("Coordinate at: ", x, y);
-            throw error;
-        }
+        const px = this.getPixel(x,y);
+        px.state = true;
+        setElement(px.element);
+    }
+
+    resetPixel(x,y)
+    {
+        const px = this.getPixel(x,y);
+        px.state = false;
+        resetElement(px.element);
     }
 
     xorPixel(x,y, bit)
     {
         let carryFlag = false;
-        let currentState = false;
         const px = this.getPixel(x,y);
         console.log("setting pixel, ", px);
-        if (px.innerText == "X")
-            currentState = true;
-        if (px.innerText == "X" && !bit)
+        if (px.state && !bit)
             carryFlag = true;
-        const resultingState = currentState ^ bit;
+        const resultingState = px.state ^ bit;
         if (resultingState)
-        {
-            px.innerText = "X";
-            px.className = "is-primary";
-        }
+            this.setPixel(x,y);
         else
         {
-            px.innerText = "O";
-            px.className = "is-warning";
+            this.resetPixel(x,y);
         }
         return carryFlag;
     }
@@ -139,8 +156,8 @@ class Screen
     _clear(pixelKey)
     {
         const pixel = this.pixelMap[pixelKey];
-        pixel.innerText = "O";
-        pixel.className = "is-warning"
+        pixel.state = false;
+        resetElement(pixel.element);
     }
 
     clearScreen()

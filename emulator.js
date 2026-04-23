@@ -247,7 +247,7 @@ class Emulator
         while(this.keepRunning)
         {
             this.dbg.innerText = "hello" + this.programCounter.toNumber().toString();
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 200));
             const opcode = this.memory.readOpcode(this.programCounter); // read opcode
             const instruction = this.decode(opcode);                    // decode
             this.incrementPC();                                         // increment program counter
