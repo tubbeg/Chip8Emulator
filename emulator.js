@@ -26,22 +26,93 @@ function initVariableRegisters()
     return v;
 }
 
+
+
 const Instructions = Object.freeze
 (
     {
-        JMP : "JMP",
-        DRAW : "DRAW",
-        SETINDEX : "SETINDEX",
-        ADD : "ADD",
-        SET : "SET",
-        CLEAR : "CLEAR"
+        JMP : "1NNN",
+        DRAW : "DXYN",
+        SETINDEX : "ANNN",
+        ADD : "7XNN",
+        SET : "6XNN",
+        CLEAR : "00E0"
     }
 );
 
-
-function firstNibbleIsOne(word)
+function compareNibbles(character, number_nibble)
 {
-    return word.getFirstNibble() == 0x1;
+    const padding = "0x";
+    switch(character)
+    {
+        case 'N':
+            return true;
+        case 'X':
+            return true;
+        case 'Y':
+            return true;
+        default:
+            if (Number(padding + character) == number_nibble)
+            {
+                console.log("here");
+                return true;
+            }
+            return false;
+    }
+}
+
+function isEqualParameterIns(instruction, word)
+{
+    const value = Instructions[instruction];
+    console.log("instruction key is", instruction);
+    console.log("value is", value);
+    const nibbles = value.split("");
+    console.log(nibbles, "split");
+    for (let j = 0; j < 4; j++)
+    {
+        console.log("comparing nibbles", nibbles[j], word.getNibble(4-j));
+        if (!compareNibbles(nibbles[j], word.getNibble(4-j)))
+        {
+            console.log(nibbles[j], "does ont match", word.getNibble(4-j));
+            return false;
+        }
+    }
+    return true;
+}
+
+function getInstruction(w)
+{
+    let ins = null;
+    Object.keys(Instructions).forEach(i => {if (isEqualParameterIns(i,w)) {ins=i;}});
+    return ins;
+}
+
+
+function isClear(word)
+{
+    return word.equals(0x00E0);
+}
+
+function isAdd(word)
+{
+    return word.getFourthNibble() == 0x7;
+}
+
+function isSet(word)
+{
+    return word.getFourthNibble() == 0x6;
+}
+
+
+//Most Significant Nibble, big endian
+function isJump(word)
+{
+    return word.getFourthNibble() == 0x1;
+}
+
+function getVX(opcode)
+{
+    return opcode.getThirdNibble();
 }
 
 function addRegister(instruction, varRegisters)
@@ -61,31 +132,57 @@ class Emulator
         this.keepRunning = true;
     }
 
-    execute(instruction)
+    //st
+    setVarRegister()
+    {
+
+    }
+
+    execute(instruction, opcode)
     {
         switch(instruction)
         {
-            case Instructions.ADD:
+            case "CLEAR":
+                this.screen.clearScreen();
+                break;
+            case "ADD":
                 this.vRegisters = addRegister(instruction, this.vRegisters);
                 break;
+            case "SETINDEX":
+                this.index = new Ch8Word(opcode.getNNN());
+                break;
+            case "SET":
+                const vx = getVX(opcode);
+                throw new Error("NOT YET IMPLEMENTED!")
             default:
+                console.log(instruction, "instruction is");
+                console.log(Instructions.CLEAR.toString(), );
                 throw new Error("NOT YET IMPLEMENTED!");
+
                 break;
         }
     }
 
     decode(opcode)
     {
-        if (firstNibbleIsOne(opcode))
+        /*sif (isJump(opcode))
             return Instructions.JMP;
-        return null;
+        if (isClear(opcode))
+            return Instructions.CLEAR;
+        if (isAdd(opcode))
+            return Instructions.ADD;
+        if (isSet(opcode))
+            return Instructions.ADD;*/
+        console.log("analysing opcode", opcode);
+        return getInstruction(opcode);
     }
 
     incrementPC()
     {
         //2 bytes per instruction means that
         //we have to increment twice 
-        this.programCounter.addNumber(2);
+        this.programCounter.increment();
+        this.programCounter.increment();
         if (this.programCounter.toNumber() > 0xFFF) // out of memory
             this.programCounter = new Ch8Word(0);
     }
@@ -101,11 +198,10 @@ class Emulator
         //this.screen.updatePixel(-1,1, "helooooooo")
         while(this.keepRunning)
         {
-            console.log("here");
             const opcode = this.memory.readOpcode(this.programCounter); // read opcode
             const instruction = this.decode(opcode);                    // decode
             this.incrementPC();                                         // increment program counter
-            this.execute(instruction);                                  // execute
+            this.execute(instruction, opcode);                                  // execute
         }
     }
 }

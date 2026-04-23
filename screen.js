@@ -73,6 +73,17 @@ class Screen
             throw error;
         }
     }
+
+    _clear(pixelKey)
+    {
+        const pixel = this.pixelMap[pixelKey];
+        pixel.innerText = "O";
+    }
+
+    clearScreen()
+    {
+        Object.keys(this.pixelMap).forEach((k) => {this._clear(k)});
+    }
 }
 
 

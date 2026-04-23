@@ -20,6 +20,12 @@ function typedArrayToMemory(arr)
     throw new Error("OUT OF MEMORY!");
 }
 
+function debugPrintHex(byte)
+{
+    const hex = byte.toNumber().toString(16);
+    console.log("hex is: ",hex);
+}
+
 class Memory
 {
     constructor(rom)
@@ -39,7 +45,12 @@ class Memory
             console.log(pcNr, high, low);
             throw new Error();
         }
-        return createWord(high,low);
+        console.log("got bytes", high,low);
+        debugPrintHex(high);
+        debugPrintHex(low);
+        const w = createWord(high,low);
+        console.log("word is", w.toNumber());
+        return w;
     }
 }
 

@@ -19,7 +19,7 @@ function createWord(high, low)
 {
     if (isByte(high) && isByte(low))
     {
-        const nr = (high << 8) & low;
+        const nr = (high.toNumber() << 8) | low.toNumber();
         return new Ch8Word(nr);
     }
     throw new Error("INVALID ARGUMENTS!", high, low);
@@ -96,6 +96,21 @@ class Ch8Word
         this._nr = this._nr + nr;
         if (!validWord(this._nr))
             this._nr = this.nr % 0xFFFF;
+    }
+
+    increment(nr)
+    {
+        this.addNumber(1);
+    }
+
+    equals(nr)
+    {
+        return this._nr == nr;
+    }
+
+    getNNN()
+    {
+        return this._nr & 0x0FFF;
     }
 }
 
